@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Temps Écran — Charly Weppe — Service Sanitaire</title>
+  <meta name="description" content="Outil de sensibilisation au temps d'écran créé par Charly Weppe, étudiant en MED3, dans le cadre du Service Sanitaire. Calcule ton bilan mensuel et annuel d'écrans et compare aux recommandations OMS." />
+  <meta name="author" content="Charly Weppe" />
+  <meta name="keywords" content="Charly Weppe, temps écran, service sanitaire, MED3, OMS, santé numérique, lycée, prévention, écrans adolescents" />
+  <link rel="canonical" href="https://bumpy-coffee-hizoizxxg7.edgeone.app/" />
+
+  <!-- Open Graph (partage réseaux sociaux) -->
+  <meta property="og:title" content="Temps Écran — Charly Weppe — Service Sanitaire" />
+  <meta property="og:description" content="Calcule ton temps d'écran annuel et découvre ce que tu aurais pu faire à la place. Outil créé par Charly Weppe, étudiant en MED3." />
+  <meta property="og:url" content="https://bumpy-coffee-hizoizxxg7.edgeone.app/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Temps Écran — Charly Weppe" />
+  <meta name="twitter:description" content="Calcule ton temps d'écran annuel. Outil Service Sanitaire par Charly Weppe, étudiant en MED3." />
+
+  <!-- Données structurées JSON-LD (Google) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Temps Écran — Service Sanitaire",
+    "description": "Outil de sensibilisation au temps d'écran pour lycéens, créé par Charly Weppe dans le cadre du Service Sanitaire.",
+    "url": "https://bumpy-coffee-hizoizxxg7.edgeone.app/",
+    "author": {
+      "@type": "Person",
+      "name": "Charly Weppe",
+      "jobTitle": "Étudiant en MED3",
+      "description": "Étudiant en médecine (MED3) réalisant son Service Sanitaire"
+    },
+    "inLanguage": "fr",
+    "about": {
+      "@type": "Thing",
+      "name": "Santé numérique et temps d'écran"
+    }
+  }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #fdf6ee;
+      --bg2: #faf0e4;
+      --surface: #ffffff;
+      --surface2: #fef9f4;
+      --border: rgba(180,130,80,0.15);
+      --border2: rgba(180,130,80,0.25);
+      --accent: #e8622a;
+      --accent-light: #fff0ea;
+      --green: #2da06e;
+      --green-light: #eafaf3;
+      --orange: #e8922a;
+      --orange-light: #fff7ea;
+      --red: #d63b3b;
+      --red-light: #ffeaea;
+      --text: #2c1f0e;
+      --text2: #7a5c3a;
+      --muted: #b08a65;
+      --shadow: 0 4px 24px rgba(120,80,40,0.08);
+      --shadow-lg: 0 8px 40px rgba(120,80,40,0.13);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -200px; right: -200px;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232,98,42,0.07), transparent 70%);
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -150px; left: -150px;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(45,160,110,0.07), transparent 70%);
+      pointer-events: none;
+    }
+
+    header {
+      background: linear-gradient(135deg, #fff8f2 0%, #ffeedd 100%);
+      border-bottom: 1px solid var(--border2);
+      padding: 3rem 2rem 2.5rem;
+      text-align: center;
+    }
+    .header-inner { max-width: 700px; margin: 0 auto; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      border: 1.5px solid rgba(232,98,42,0.2);
+      padding: 0.35rem 0.9rem;
+      border-radius: 2rem;
+      margin-bottom: 1.4rem;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5.5vw, 3.8rem);
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    h1 em {
+      font-style: normal;
+      color: var(--accent);
+      position: relative;
+    }
+    h1 em::after {
+      content: '';
+      position: absolute;
+      bottom: 2px; left: 0;
+      width: 100%; height: 4px;
+      background: var(--accent);
+      border-radius: 2px;
+      opacity: 0.25;
+    }
+
+    .subtitle {
+      margin-top: 0.9rem;
+      color: var(--text2);
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border2);
+    }
+
+    /* INPUT CARD */
+    .input-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border2);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+    }
+    .input-card-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+    }
+    .input-card-sub {
+      font-size: 0.82rem;
+      color: var(--text2);
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .avg-input-row {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .avg-number-wrap {
+      display: flex;
+      align-items: center;
+    }
+    .avg-input {
+      width: 110px;
+      background: var(--bg2);
+      border: 2px solid var(--border2);
+      border-radius: 14px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 2rem;
+      font-weight: 500;
+      text-align: center;
+      padding: 0.6rem 0.5rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -moz-appearance: textfield;
+    }
+    .avg-input::-webkit-outer-spin-button,
+    .avg-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .avg-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(232,98,42,0.1);
+    }
+    .avg-unit {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text2);
+      margin-left: 0.6rem;
+    }
+
+    .slider-wrap { flex: 1; min-width: 200px; }
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.63rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--pct, 18.75%), #e8d8c8 var(--pct, 18.75%), #e8d8c8 100%);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 2px 8px rgba(232,98,42,0.35);
+      border: 3px solid white;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+    input[type=range]::-moz-range-thumb {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 3px solid white;
+    }
+
+    .detail-toggle {
+      margin-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1.2rem;
+    }
+    .toggle-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0;
+    }
+    .toggle-btn:hover { opacity: 0.75; }
+    .toggle-arrow { display: inline-block; transition: transform 0.25s; font-size: 0.7rem; }
+    .toggle-arrow.open { transform: rotate(90deg); }
+
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.6rem;
+      margin-top: 1.2rem;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.35s ease, opacity 0.25s;
+      opacity: 0;
+    }
+    .days-grid.visible { max-height: 200px; opacity: 1; }
+
+    .day-card {
+      background: var(--bg2);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem 0.4rem;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+    .day-card:focus-within { border-color: var(--accent); background: #fff8f3; }
+
+    .day-label {
+      font-size: 0.58rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 0.45rem;
+    }
+    .day-input {
+      width: 100%;
+      background: white;
+      border: 1.5px solid var(--border2);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-align: center;
+      padding: 0.4rem 0.1rem;
+      outline: none;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
+    }
+    .day-input::-webkit-outer-spin-button,
+    .day-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .day-input:focus { border-color: var(--accent); }
+    .day-unit { font-size: 0.52rem; font-weight: 700; color: var(--muted); margin-top: 0.28rem; }
+
+    /* STATS */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border2);
+      border-radius: 18px;
+      padding: 1.4rem 1.2rem;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+    .stat-card::after {
+      content: var(--stat-emoji);
+      position: absolute;
+      bottom: -8px; right: 10px;
+      font-size: 3rem;
+      opacity: 0.08;
+      pointer-events: none;
+    }
+    .stat-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    .stat-value {
+      font-family: 'DM Mono', monospace;
+      font-size: 2.4rem;
+      font-weight: 500;
+      color: var(--stat-color, var(--text));
+      line-height: 1;
+    }
+    .stat-unit { font-size: 0.72rem; font-weight: 600; color: var(--text2); margin-top: 0.3rem; }
+    .stat-card.daily   { --stat-color: var(--accent); --stat-emoji: '📱'; }
+    .stat-card.monthly { --stat-color: var(--orange);  --stat-emoji: '📅'; }
+    .stat-card.yearly  { --stat-color: var(--red);     --stat-emoji: '📆'; }
+
+    /* OMS */
+    .oms-banner {
+      border-radius: 18px;
+      padding: 1.5rem 1.8rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1.2rem;
+      border: 1.5px solid;
+      transition: all 0.4s;
+      box-shadow: var(--shadow);
+    }
+    .oms-banner.neutral { background: #f7f3ee; border-color: rgba(180,130,80,0.2); }
+    .oms-banner.good    { background: var(--green-light); border-color: rgba(45,160,110,0.25); }
+    .oms-banner.warn    { background: var(--orange-light); border-color: rgba(232,146,42,0.3); }
+    .oms-banner.bad     { background: var(--red-light); border-color: rgba(214,59,59,0.3); }
+
+    .oms-icon { font-size: 2.2rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .oms-content { flex: 1; }
+    .oms-title { font-size: 1rem; font-weight: 800; color: var(--text); margin-bottom: 0.35rem; }
+    .oms-text { font-size: 0.8rem; font-weight: 600; color: var(--text2); line-height: 1.65; }
+    .oms-pill {
+      flex-shrink: 0;
+      padding: 0.4rem 0.9rem;
+      border-radius: 2rem;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      align-self: flex-start;
+    }
+    .neutral .oms-pill { background: #ede5d8; color: var(--muted); }
+    .good .oms-pill    { background: rgba(45,160,110,0.15); color: var(--green); }
+    .warn .oms-pill    { background: rgba(232,146,42,0.15); color: var(--orange); }
+    .bad .oms-pill     { background: rgba(214,59,59,0.15); color: var(--red); }
+
+    /* CHART */
+    .chart-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border2);
+      border-radius: 20px;
+      padding: 1.8rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+    .chart-title { font-size: 1rem; font-weight: 800; color: var(--text); }
+    .chart-sub { font-size: 0.72rem; font-weight: 600; color: var(--muted); margin-top: 0.2rem; }
+    .chart-legend { display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.68rem; font-weight: 700; color: var(--text2); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+    canvas#chart { width: 100% !important; max-height: 260px; }
+
+    /* ALTERNATIVES */
+    .alt-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .alt-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border2);
+      border-radius: 16px;
+      padding: 1.3rem;
+      transition: all 0.22s;
+      box-shadow: var(--shadow);
+    }
+    .alt-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: rgba(232,98,42,0.25); }
+    .alt-emoji { font-size: 1.7rem; margin-bottom: 0.6rem; display: block; }
+    .alt-name { font-size: 0.88rem; font-weight: 800; color: var(--text); margin-bottom: 0.3rem; }
+    .alt-time { font-size: 0.7rem; font-weight: 700; color: var(--accent); margin-bottom: 0.45rem; }
+    .alt-desc { font-size: 0.72rem; font-weight: 600; color: var(--text2); line-height: 1.55; }
+
+    /* FOOTER */
+    footer {
+      background: linear-gradient(135deg, #fff3ea, #ffeedd);
+      border-top: 1px solid var(--border2);
+      padding: 1.8rem 2rem;
+      text-align: center;
+    }
+    .footer-inner { max-width: 600px; margin: 0 auto; }
+    .footer-name { font-size: 0.95rem; font-weight: 800; color: var(--text); }
+    .footer-name span { color: var(--accent); }
+    .footer-role { font-size: 0.75rem; font-weight: 600; color: var(--text2); margin-top: 0.25rem; }
+    .footer-disclaimer { margin-top: 0.8rem; font-size: 0.62rem; font-weight: 600; color: var(--muted); line-height: 1.6; }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade { animation: fadeUp 0.5s ease forwards; opacity: 0; }
+    .d1 { animation-delay: 0.05s; }
+    .d2 { animation-delay: 0.15s; }
+    .d3 { animation-delay: 0.25s; }
+    .d4 { animation-delay: 0.35s; }
+    .d5 { animation-delay: 0.45s; }
+
+    @media (max-width: 600px) {
+      .stats-row { grid-template-columns: 1fr; }
+      .days-grid { grid-template-columns: repeat(4, 1fr); }
+      .avg-input-row { flex-direction: column; align-items: flex-start; }
+      .slider-wrap { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="badge">🏥 Service Sanitaire · Lycée</div>
+    <h1>Combien d'heures passes-tu devant un <em>écran</em>&nbsp;?</h1>
+    <p class="subtitle">Renseigne ta moyenne quotidienne pour découvrir ce que ça représente sur un mois, une année… et ce que tu aurais pu faire à la place.</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- INPUT -->
+  <div class="fade d1">
+    <div class="section-label">⏱ Ta consommation d'écrans</div>
+    <div class="input-card">
+      <div class="input-card-title">Combien d'heures passes-tu sur un écran par jour ?</div>
+      <div class="input-card-sub">Inclut : réseaux sociaux, vidéos, jeux, smartphone, ordinateur… (hors temps scolaire)</div>
+
+      <div class="avg-input-row">
+        <div class="avg-number-wrap">
+          <input class="avg-input" type="number" id="avgInput" min="0" max="24" step="0.5" value="3" oninput="syncFromInput()" />
+          <span class="avg-unit">h / jour</span>
+        </div>
+        <div class="slider-wrap">
+          <div class="slider-labels">
+            <span>0h</span>
+            <span>⚡ Limite OMS : 2h</span>
+            <span>16h</span>
+          </div>
+          <input type="range" id="avgSlider" min="0" max="16" step="0.5" value="3" oninput="syncFromSlider()" />
+        </div>
+      </div>
+
+      <div class="detail-toggle">
+        <button class="toggle-btn" onclick="toggleDetail()">
+          <span class="toggle-arrow" id="toggleArrow">▶</span>
+          Détailler jour par jour (optionnel)
+        </button>
+        <div class="days-grid" id="daysGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="fade d2">
+    <div class="section-label">📊 Tes chiffres</div>
+    <div class="stats-row">
+      <div class="stat-card daily">
+        <div class="stat-label">Moyenne journalière</div>
+        <div class="stat-value" id="statDaily">3.0</div>
+        <div class="stat-unit">heures / jour</div>
+      </div>
+      <div class="stat-card monthly">
+        <div class="stat-label">Total mensuel</div>
+        <div class="stat-value" id="statMonthly">91</div>
+        <div class="stat-unit">heures / mois</div>
+      </div>
+      <div class="stat-card yearly">
+        <div class="stat-label">Total annuel</div>
+        <div class="stat-value" id="statYearly">1095</div>
+        <div class="stat-unit">heures / an</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OMS -->
+  <div class="fade d3">
+    <div class="section-label">🌍 Avis santé — Recommandations OMS</div>
+    <div class="oms-banner warn" id="omsBanner">
+      <div class="oms-icon" id="omsIcon">⚠️</div>
+      <div class="oms-content">
+        <div class="oms-title" id="omsTitle">Attention, tu dépasses les recommandations OMS</div>
+        <div class="oms-text" id="omsText">L'OMS recommande max 2h/jour. Tu es à 3.0h, soit 1.0h de trop. Sur un an, c'est 365h en excès.</div>
+      </div>
+      <div class="oms-pill" id="omsPill">⚠ À surveiller</div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="fade d4">
+    <div class="section-label">📈 Accumulation sur une année</div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Heures d'écran cumulées sur 52 semaines</div>
+          <div class="chart-sub">Projection basée sur ta moyenne actuelle</div>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" id="chartDot" style="background:#e8922a"></div> Tes heures</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#2da06e; opacity:0.6"></div> Limite OMS (2h/j)</div>
+        </div>
+      </div>
+      <canvas id="chart"></canvas>
+    </div>
+  </div>
+
+  <!-- ALTERNATIVES -->
+  <div class="fade d5">
+    <div class="section-label">💡 Ce que tu aurais pu faire à la place</div>
+    <div class="alt-grid" id="altGrid"></div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-name">Réalisé par <span>Charly Weppe</span></div>
+    <div class="footer-role">Étudiant en MED3 · Service Sanitaire · Prévention santé numérique</div>
+    <div class="footer-disclaimer">Sources : OMS · Santé Publique France · Les données sont indicatives. Pour un suivi personnalisé, consulter un professionnel de santé.</div>
+  </div>
+</footer>
+
+<script>
+  const OMS = 2;
+  const DAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+  let detailOpen = false;
+
+  // Build day inputs
+  const daysGrid = document.getElementById('daysGrid');
+  DAYS.forEach((d, i) => {
+    daysGrid.innerHTML += `
+      <div class="day-card">
+        <div class="day-label">${d}</div>
+        <input class="day-input" type="number" id="day${i}" min="0" max="24" step="0.5" placeholder="0" oninput="syncFromDetail()" />
+        <div class="day-unit">h</div>
+      </div>`;
+  });
+
+  function toggleDetail() {
+    detailOpen = !detailOpen;
+    daysGrid.classList.toggle('visible', detailOpen);
+    document.getElementById('toggleArrow').classList.toggle('open', detailOpen);
+    if (detailOpen) {
+      const avg = parseFloat(document.getElementById('avgInput').value) || 0;
+      DAYS.forEach((_, i) => {
+        const el = document.getElementById(`day${i}`);
+        if (!el.value) el.value = avg;
+      });
+    }
+  }
+
+  function syncFromInput() {
+    const v = Math.min(24, Math.max(0, parseFloat(document.getElementById('avgInput').value) || 0));
+    document.getElementById('avgSlider').value = Math.min(16, v);
+    updateSliderBg(Math.min(16, v));
+    update(v);
+  }
+
+  function syncFromSlider() {
+    const v = parseFloat(document.getElementById('avgSlider').value);
+    document.getElementById('avgInput').value = v;
+    updateSliderBg(v);
+    update(v);
+  }
+
+  function syncFromDetail() {
+    const vals = DAYS.map((_, i) => parseFloat(document.getElementById(`day${i}`).value) || 0);
+    const avg = vals.reduce((a, b) => a + b, 0) / 7;
+    document.getElementById('avgInput').value = avg.toFixed(1);
+    document.getElementById('avgSlider').value = Math.min(16, avg);
+    updateSliderBg(Math.min(16, avg));
+    update(avg);
+  }
+
+  function updateSliderBg(v) {
+    const pct = (v / 16) * 100;
+    document.getElementById('avgSlider').style.setProperty('--pct', pct + '%');
+  }
+
+  // Chart
+  const ctx = document.getElementById('chart').getContext('2d');
+  const labels = Array.from({length: 52}, (_, i) => `S${i+1}`);
+  const omsData = labels.map((_, i) => Math.round(OMS * 7 * (i+1)));
+
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Tes heures cumulées',
+          data: new Array(52).fill(0),
+          borderColor: '#e8922a',
+          backgroundColor: 'rgba(232,146,42,0.07)',
+          fill: true,
+          tension: 0.4,
+          borderWidth: 2.5,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#e8922a',
+        },
+        {
+          label: 'Limite OMS',
+          data: omsData,
+          borderColor: 'rgba(45,160,110,0.6)',
+          borderDash: [6, 4],
+          fill: false,
+          tension: 0.4,
+          borderWidth: 2,
+          pointRadius: 0,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#fff8f2',
+          borderColor: 'rgba(180,130,80,0.2)',
+          borderWidth: 1,
+          titleColor: '#2c1f0e',
+          bodyColor: '#7a5c3a',
+          titleFont: { family: 'Nunito', size: 12, weight: '800' },
+          bodyFont: { family: 'DM Mono', size: 11 },
+          padding: 12,
+          callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y}h` }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(180,130,80,0.08)' },
+          ticks: { color: '#b08a65', font: { family: 'Nunito', size: 10, weight: '700' }, maxTicksLimit: 13 },
+          border: { color: 'rgba(180,130,80,0.15)' }
+        },
+        y: {
+          grid: { color: 'rgba(180,130,80,0.08)' },
+          ticks: { color: '#b08a65', font: { family: 'DM Mono', size: 10 }, callback: v => v + 'h' },
+          border: { color: 'rgba(180,130,80,0.15)' }
+        }
+      }
+    }
+  });
+
+  const alternatives = [
+    { emoji: '🚴', name: 'Vélo ou marche',          desc: '30 min/jour améliore l\'humeur, le sommeil et la santé cardio.',        km: true },
+    { emoji: '📚', name: 'Lire un livre',            desc: 'Un roman de 300 pages se lit en ~8h. C\'est 8h de voyage mental !',     books: true },
+    { emoji: '🎸', name: 'Apprendre un instrument',  desc: 'Avec 1h/jour, tu joues tes premières chansons en quelques semaines.',    music: true },
+    { emoji: '🍳', name: 'Cuisiner',                 desc: 'Préparer ses repas, c\'est économique, créatif et bon pour la santé.',   cook: true },
+    { emoji: '🎨', name: 'Dessin & créativité',      desc: 'Sketchbook, peinture, origami… Créer à la main stimule autrement.',     draw: true },
+    { emoji: '🧘', name: 'Sport / méditation',       desc: 'Même 15 min de yoga ou de running réduit le stress de 30%.',            sport: true },
+    { emoji: '🌿', name: 'Temps en nature',          desc: 'Forêt, parc, jardin… La nature réduit le cortisol (stress).',           nature: true },
+    { emoji: '👥', name: 'Voir des amis en vrai',    desc: 'Les interactions réelles sont irremplaçables pour ton bien-être.',      social: true },
+  ];
+
+  function buildAlts(yearly) {
+    const g = document.getElementById('altGrid');
+    g.innerHTML = '';
+    alternatives.forEach(a => {
+      let timeStr = '';
+      if (yearly > 0) {
+        if (a.books)  timeStr = `≈ ${Math.round(yearly / 8)} livres lus par an`;
+        else if (a.km) timeStr = `≈ ${Math.round(yearly * 15)} km parcourus`;
+        else if (a.music) timeStr = `${Math.round(yearly / 365 * 60)} min de pratique / jour`;
+        else if (a.sport) timeStr = `${Math.round(yearly / 365 * 60)} min de sport / jour`;
+        else timeStr = `${Math.round(yearly)} h récupérées / an`;
+      }
+      g.innerHTML += `
+        <div class="alt-card">
+          <span class="alt-emoji">${a.emoji}</span>
+          <div class="alt-name">${a.name}</div>
+          ${timeStr ? `<div class="alt-time">${timeStr}</div>` : ''}
+          <div class="alt-desc">${a.desc}</div>
+        </div>`;
+    });
+  }
+
+  function update(daily) {
+    const monthly = daily * 30.44;
+    const yearly  = daily * 365;
+
+    document.getElementById('statDaily').textContent   = daily.toFixed(1);
+    document.getElementById('statMonthly').textContent = Math.round(monthly);
+    document.getElementById('statYearly').textContent  = Math.round(yearly);
+
+    const banner = document.getElementById('omsBanner');
+    const icon   = document.getElementById('omsIcon');
+    const title  = document.getElementById('omsTitle');
+    const text   = document.getElementById('omsText');
+    const pill   = document.getElementById('omsPill');
+
+    banner.className = 'oms-banner ';
+    if (daily === 0) {
+      banner.classList.add('neutral');
+      icon.textContent  = '❓';
+      title.textContent = 'En attente de données…';
+      text.textContent  = 'Déplace le curseur ou saisis tes heures pour voir ton évaluation.';
+      pill.textContent  = '–';
+    } else if (daily <= OMS) {
+      banner.classList.add('good');
+      icon.textContent  = '✅';
+      title.textContent = 'Bravo, tu respectes les recommandations de l\'OMS !';
+      text.textContent  = `L'OMS recommande moins de 2h d'écrans récréatifs/jour pour les adolescents. Avec ${daily.toFixed(1)}h/jour, tu es dans les clous. Continue — ton cerveau et tes yeux te remercient !`;
+      pill.textContent  = '✓ Conforme OMS';
+    } else if (daily <= 4) {
+      banner.classList.add('warn');
+      icon.textContent  = '⚠️';
+      title.textContent = 'Attention, tu dépasses les recommandations OMS';
+      text.textContent  = `L'OMS recommande max 2h/jour. Tu es à ${daily.toFixed(1)}h, soit ${(daily - 2).toFixed(1)}h de trop chaque jour. Sur un an, c'est ${Math.round((daily - 2) * 365)}h en excès. Réduire progressivement, c'est possible !`;
+      pill.textContent  = '⚠ À surveiller';
+    } else {
+      banner.classList.add('bad');
+      icon.textContent  = '🚨';
+      title.textContent = `${daily.toFixed(1)}h/jour — tu dépasses largement la limite OMS`;
+      text.textContent  = `C'est ${(daily - 2).toFixed(1)}h de trop chaque jour, soit ${Math.round((daily - 2) * 365)}h par an au-delà de la limite. Risques : troubles du sommeil, anxiété, sédentarité, fatigue oculaire. Il est possible de réduire progressivement !`;
+      pill.textContent  = '✗ Dépasse OMS';
+    }
+
+    let color, bgColor;
+    if (daily <= 2)      { color = '#2da06e'; bgColor = 'rgba(45,160,110,0.07)'; }
+    else if (daily <= 4) { color = '#e8922a'; bgColor = 'rgba(232,146,42,0.07)'; }
+    else                 { color = '#d63b3b'; bgColor = 'rgba(214,59,59,0.07)'; }
+
+    chart.data.datasets[0].data = labels.map((_, i) => Math.round(daily * 7 * (i+1)));
+    chart.data.datasets[0].borderColor = color;
+    chart.data.datasets[0].backgroundColor = bgColor;
+    chart.data.datasets[0].pointHoverBackgroundColor = color;
+    document.getElementById('chartDot').style.background = color;
+    chart.update('active');
+
+    buildAlts(yearly);
+  }
+
+  // Init
+  updateSliderBg(3);
+  update(3);
+</script>
+</body>
+</html>
